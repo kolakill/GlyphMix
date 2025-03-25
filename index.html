@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>GlyphMix-Переводчик</title>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3f51b5;
+            --secondary-color: #303f9f;
+            --accent-color: #ff4081;
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --container-bg: #2d2d2d;
+            --border-color: #404040;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-main: 'Unbounded', sans-serif;
+            --font-pixel: 'Press Start 2P', cursive;
+            --glass-bg: rgba(45, 45, 45, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-dark {
+            --primary-color: #5c6bc0;
+            --secondary-color: #3949ab;
+            --bg-color: #121212;
+            --container-bg: #212121;
+            --border-color: #373737;
+            --glass-bg: rgba(33, 33, 33, 0.95);
+        }
+
+        .theme-light {
+            --primary-color: #6366f1;
+            --secondary-color: #4f46e5;
+            --accent-color: #ec4899;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --container-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            min-height: 100vh;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: var(--transition);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--container-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 800px;
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .donate-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 65px;
+            height: 65px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .donate-icon:hover {
+            transform: scale(1.1) rotate(-15deg);
+        }
+
+        .donate-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(63, 81, 181, 0.3);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+            resize: vertical;
+        }
+
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .settings-content {
+            background: var(--glass-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .setting-group {
+            margin-bottom: 1.2rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+
+        .setting-group h3 {
+            margin-bottom: 0.8rem;
+            color: var(--accent-color);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .setting-option {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+            transition: var(--transition);
+            cursor: pointer;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .setting-option:hover {
+            background: rgba(63, 81, 181, 0.1);
+        }
+
+        .setting-option label {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0.6rem;
+            cursor: pointer;
+        }
+
+        .setting-option input {
+            margin-right: 1rem;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .pixel-font {
+            font-family: var(--font-pixel);
+            letter-spacing: -0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            button {
+                font-size: 0.8rem;
+                padding: 0.6rem;
+            }
+            
+            .donate-icon {
+                bottom: 15px;
+                right: 15px;
+                width: 55px;
+                height: 55px;
+            }
+            
+            .logo {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="https://sp-donate.ru/pay/fourifIIu3doJIu3" target="_blank" class="donate-icon">
+        <img src="https://i.imgur.com/NsVw7AN.png" alt="Поддержать разработчика">
+    </a>
+
+    <div class="container">
+        <div class="logo">
+            <img src="https://i.imgur.com/8Pqro8n.png" alt="GlyphMix Логотип">
+        </div>
+        <h2 id="directionText">🔤 GlyphMix-Переводчик</h2>
+        <div class="controls">
+            <button onclick="swapLanguages()">🔄 Направление</button>
+            <button onclick="openSettings()">⚙️ Настройки</button>
+        </div>
+        <textarea id="input" placeholder="Введите текст..." oninput="translateText()"></textarea>
+        <textarea id="output" placeholder="Результат перевода..." readonly></textarea>
+    </div>
+
+    <div id="settingsModal" class="settings-modal">
+        <div class="settings-content">
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">⚙️ Настройки</h2>
+            
+            <div class="setting-group">
+                <h3>🎨 Тема оформления</h3>
+                <div class="setting-option">
+                    <label>
+                        <input type="radio" name="theme" value="dark" checked>
+                        <span>Тёмная</span>
+                    </label>
+                </div>
+                <div class="setting-option">
+                    <label>
+                        <input type="radio" name="theme" value="light">
+                        <span>Светлая</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>🔡 Варианты буквы И/и</h3>
+                <div class="setting-option">
+                    <label>
+                        <input type="radio" name="i-option" value="nu" checked>
+                        <span>И → N, и → u</span>
+                    </label>
+                </div>
+                <div class="setting-option">
+                    <label>
+                        <input type="radio" name="i-option" value="uu">
+                        <span>И → U, и → u</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>🎮 Шрифт</h3>
+                <div class="setting-option">
+                    <label>
+                        <input type="checkbox" id="fontToggle">
+                        <span>Пиксельный шрифт</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button onclick="saveSettings()" style="flex: 1;">💾 Сохранить</button>
+                <button onclick="closeSettings()" style="flex: 1; background: #64748b;">❌ Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isReverse = false;
+        let settings = {
+            theme: 'dark',
+            iOption: 'nu',
+            pixelFont: false
+        };
+
+        const translationMaps = {
+            nu: {'И': 'N', 'и': 'u'},
+            uu: {'И': 'U', 'и': 'u'}
+        };
+
+        const baseTranslationMap = {
+            'А': 'A', 'а': 'a',
+            'Б': '6', 'б': '6',
+            'В': 'B', 'в': 'B',
+            'Г': 'r', 'г': 'r',
+            'Д': 'g', 'д': 'g',
+            'Е': 'E', 'е': 'e',
+            'Ё': 'E', 'ё': 'e',
+            'Ж': 'JIL', 'ж': 'JIL',
+            'З': '3', 'з': '3',
+            'Й': '1', 'й': '1',
+            'К': 'K', 'к': 'K',
+            'Л': 'Jl', 'л': 'Jl',
+            'М': 'M', 'м': 'm',
+            'Н': 'H', 'н': 'H',
+            'О': 'O', 'о': 'o',
+            'П': 'II', 'п': 'n',
+            'Р': 'P', 'р': 'p',
+            'С': 'C', 'с': 'c',
+            'Т': 'T', 'т': 'T',
+            'У': 'y', 'у': 'y',
+            'Ф': 'qp', 'ф': 'qp',
+            'Х': 'X', 'х': 'x',
+            'Ц': 'Ll', 'ц': 'Ll',
+            'Ч': '4', 'ч': '4',
+            'Ш': 'LLI', 'ш': 'LLI',
+            'Щ': 'LLl', 'щ': 'LLl',
+            'Ъ': 'b', 'ъ': 'b',
+            'Ы': 'bI', 'ы': 'bI',
+            'Ь': 'b', 'ь': 'b',
+            'Э': '3', 'э': '3',
+            'Ю': 'IO', 'ю': 'IO',
+            'Я': '9', 'я': '9'
+        };
+
+        const reverseMap = {
+            '9I': 'Я',
+            'n': 'п',
+            'LLl': 'Щ',
+            'JIL': 'Ж',
+            'Ll': 'Ц',
+            ...Object.entries(baseTranslationMap).reduce((acc, [key, value]) => {
+                if (!acc[value] && value !== 'n' && value !== 'K') {
+                    acc[value] = key;
+                }
+                return acc;
+            }, {})
+        };
+
+        let translationMap = {...baseTranslationMap};
+
+        function updateTranslationMap() {
+            translationMap = {...baseTranslationMap, ...translationMaps[settings.iOption]};
+        }
+
+        function handleYaReplacement(word) {
+            return word.split('').map(char => {
+                if ((char === 'Я' || char === 'я') && word.length < 5) {
+                    return '9I';
+                }
+                return translationMap[char] || char;
+            }).join('');
+        }
+
+        function translateText() {
+            const input = document.getElementById('input');
+            const output = document.getElementById('output');
+            
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            
+            const text = input.value;
+            let result = '';
+            
+            if (isReverse) {
+                const entries = Object.entries(reverseMap).sort((a, b) => b[0].length - a[0].length);
+                let tempText = text;
+                for(const [key, value] of entries) {
+                    const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                    tempText = tempText.replace(regex, value);
+                }
+                result = tempText;
+            } else {
+                const words = text.split(/([^а-яА-ЯёЁ]+)/gi);
+                result = words.map(word => {
+                    if (/^[а-яА-ЯёЁ]+$/.test(word)) {
+                        return handleYaReplacement(word);
+                    }
+                    return word;
+                }).join('');
+            }
+            
+            output.value = result;
+            input.setSelectionRange(start, end);
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+            document.querySelector(`input[name="theme"][value="${settings.theme}"]`).checked = true;
+            document.querySelector(`input[name="i-option"][value="${settings.iOption}"]`).checked = true;
+            document.getElementById('fontToggle').checked = settings.pixelFont;
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function saveSettings() {
+            settings.theme = document.querySelector('input[name="theme"]:checked').value;
+            settings.iOption = document.querySelector('input[name="i-option"]:checked').value;
+            settings.pixelFont = document.getElementById('fontToggle').checked;
+            
+            document.body.className = '';
+            document.body.classList.add(`theme-${settings.theme}`);
+            if(settings.pixelFont) document.body.classList.add('pixel-font');
+            
+            localStorage.setItem('translatorSettings', JSON.stringify(settings));
+            updateTranslationMap();
+            translateText();
+            closeSettings();
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('translatorSettings');
+            if (saved) {
+                settings = JSON.parse(saved);
+                document.body.className = '';
+                document.body.classList.add(`theme-${settings.theme}`);
+                if(settings.pixelFont) document.body.classList.add('pixel-font');
+            }
+            updateTranslationMap();
+        }
+
+        function swapLanguages() {
+            isReverse = !isReverse;
+            document.getElementById('directionText').textContent = isReverse 
+                ? 'Псевдоанглийский → Русский' 
+                : 'Русский → Псевдоанглийский';
+            
+            const input = document.getElementById('input');
+            const output = document.getElementById('output');
+            [input.value, output.value] = [output.value, input.value];
+            input.placeholder = isReverse 
+                ? 'Введите псевдоанглийский текст...' 
+                : 'Введите русский текст...';
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>
